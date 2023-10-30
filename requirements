@@ -1,0 +1,6 @@
+nfstream==6.0.0
+pandas
+numpy
+plotly
+psutil
+pympler
