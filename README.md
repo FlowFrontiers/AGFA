@@ -1,1 +1,1 @@
-# AGFA
+# Adaptive Gradual Flow Aggregation
