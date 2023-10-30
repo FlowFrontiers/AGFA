@@ -9,16 +9,6 @@ class Buffer:
         self.id = id
         self.bufferedArray = []
 
-        '''
-        # TODO FIVE TUPLE
-        self._protocol = _protocol
-        self._src_port = _src_port
-        self._dst_port = _dst_port
-        self._src_ip = _src_ip
-        self._dst_ip = _dst_ip
-        '''
-
-        # ez lesz a fontossagi sorrend tombkent kapja meg []
         self.params = params
         self.fiveTuple = fiveTuple
         self.mil = mil
@@ -27,48 +17,46 @@ class Buffer:
         self.con = con
         self.advancedIPComparison = advancedIPComparison
 
-        # abban az esetben ha advanced be van kapcsolva leztre kell hozni a rootot a luleahoz
+        # if the advanced IP comparison is set to true then Luela algorithm is used for efficiency.
         if str(advancedIPComparison) == "True":
-            # root src es dst lesz letrehozasa ebben az esetben
             self.root_src = advanced_matching.Lulea_node('*')
             self.root_dst = advanced_matching.Lulea_node('*')
 
     def set_relative_memory_size(self, relativeMemorySize: int) -> None:
         """
-        # TODO make this function description
-        Ez a funkció beállitja a relativ memória méretet, ezt származtatni kell a ténylegesből mert nincs memória
-        menedzsment a pythonban olyan ami a P4 esetén előáll.
+        This function sets the relative memory size, this should be derived from the actual memory size because there
+        is no memory management in python. The size will be the constraint of the given buffer.
 
-        :rtype
-        :param relativeMemorySize:
-        :return:
+        :param relativeMemorySize: size of relative memory to allocate for a given buffer
+        :return: None
         """
         Buffer.__relativeMemorySize = relativeMemorySize
 
     def get_relative_memory_size(self) -> int:
         """
-        # TODO kiegésziteni
-        :rtype int
-        :return:
+        This function returns the relative memory size of the buffer.
+
+        :return: relative memory size of the buffer
         """
         return int(Buffer.__relativeMemorySize)
 
     def containsEntry(self, other):
-        # ez annak kell lennie hogy a bufferedArray-ben van-e adott elemetn ha van hozza kell adni amugy kidobni
-        # itt majd kell valami binaris / hash megvalositasos trukk!
+        """
+        This function checks if the given element is in the buffer or not. If the element is in the buffer then
+        the function returns the element else it returns False.
+
+        :param other: element that should be checked
+        :return: union of bool and None
+        """
         times = 0
         for i in self.bufferedArray:
             for j in self.fiveTuple:
-                # megnezzuk ha megegyezik ket attributum akkor tovabb megyunk
-                # itt meg kell csinalni hogy ha az attributum neve a "src_ip","dst_ip" akkor csak ezeket
-                # hasonlista ossze a lulea algoritmussal
                 skip = False
 
                 if self.advancedIPComparison == "True":
                     if str(j) == "src_ip":
                         val = advanced_matching.find_prefix(root=self.root_src,
                                                             prefix=advanced_matching.pre_process_ip_addr(other.src_ip))
-                                                            #prefix=advanced_matching.pre_process_ip_addr(getattr(other,j)))
                         if val[0]:
                             times += 1
                             skip = True
@@ -76,7 +64,6 @@ class Buffer:
                     elif str(j) == "dst_ip":
                         val = advanced_matching.find_prefix(root=self.root_dst,
                                                             prefix=advanced_matching.pre_process_ip_addr(other.dst_ip))
-                                                            #prefix=advanced_matching.pre_process_ip_addr(getattr(other,j)))
                         if val[0]:
                             times += 1
                             skip = True
@@ -91,6 +78,11 @@ class Buffer:
         return False
 
     def smallest_bidirectional_bytes(self):
+        """
+        This function returns the element with the smallest bidirectional bytes in the buffer.
+
+        :return: NFEntry with the smallest bidirectional bytes
+        """
         smallest = self.bufferedArray[0]
         for element in self.bufferedArray:
             if element.bidirectional_bytes < smallest.bidirectional_bytes:
@@ -98,26 +90,34 @@ class Buffer:
         return smallest
 
     def lastElement(self):
+        """
+        This function returns the last element of the buffer if the buffer is not empty else it returns False.
+
+        :return: union of bool and integer
+        """
         if len(self.bufferedArray) == 0:
             return False
         else:
             return self.smallest_bidirectional_bytes()
-            #return self.bufferedArray[-1]
 
-    def concatElements(self,NFEntry_1, NFEntry_2):
-        # FONTOS: NFEntry_1 mindig ami mar szerepel a tablaban
-        # es NFEntry_2 id mezojet atteszuk NFEntry_1
+    def concatElements(self,NFEntry_1, NFEntry_2) -> None:
+        """
+        This function concatenates the id of the given NFEntries and sets the concatenated id to the first NFEntry.
+
+        :param NFEntry_1: NFEntry that should be modified
+        :param NFEntry_2: NFEntry that should be modified
+        :return:
+        """
         NFEntry_1.id = f'{NFEntry_1.id}:{NFEntry_2.id}'
-        '''
-        for param in self.con:
-            firstPart = str(getattr(NFEntry_1,param))
-            secondPart = str(getattr(NFEntry_2,param))
-            setattr(NFEntry_1,param,firstPart + ':' + secondPart)
-        '''
 
-    def takeMinimum(self,NFEntry_1,NFEntry_2):
-        # FONTOS: NFEntry_1 mindig ami mar szerepel a tablaban
-        # es NFEntry_2 lesz az amit be akarunk tenni!
+    def takeMinimum(self,NFEntry_1,NFEntry_2) -> None:
+        """
+        This function takes the minimum value of the given parameters of the given NFEntries and sets the minimum
+
+        :param NFEntry_1: NFEntry that should be modified
+        :param NFEntry_2: NFEntry that should be modified
+        :return: None
+        """
         if float(NFEntry_1.bidirectional_first_seen_ms) == float(0) or float(NFEntry_1.bidirectional_first_seen_ms) == float(-1):
             NFEntry_1.bidirectional_first_seen_ms = NFEntry_2.bidirectional_first_seen_ms
         elif float(NFEntry_2.bidirectional_first_seen_ms) < float(NFEntry_1.bidirectional_first_seen_ms):
@@ -132,19 +132,15 @@ class Buffer:
             NFEntry_1.dst2src_first_seen_ms = NFEntry_2.dst2src_first_seen_ms
         elif float(NFEntry_2.dst2src_first_seen_ms) < float(NFEntry_1.dst2src_first_seen_ms):
             NFEntry_1.dst2src_first_seen_ms = NFEntry_2.dst2src_first_seen_ms
-        '''
-        for param in self.mil:
-            if float(getattr(NFEntry_1,param)) == (float(0) or float(-1)):
-                setattr(NFEntry_1,param,getattr(NFEntry_2,param))
-            elif float(getattr(NFEntry_2,param)) < float(getattr(NFEntry_1,param)):
-                setattr(NFEntry_1,param,getattr(NFEntry_2,param))
-            else:
-                continue
-        '''
 
-    def takeMaximum(self, NFEntry_1, NFEntry_2):
-        # FONTOS: NFEntry_1 mindig ami mar szerepel a tablaban
-        # es NFEntry_2 lesz az amit be akarunk tenni!
+    def takeMaximum(self, NFEntry_1, NFEntry_2) -> None:
+        """
+        This function takes the maximum value of the given parameters of the given NFEntries and sets the maximum
+
+        :param NFEntry_1: NFEntry that should be modified
+        :param NFEntry_2: NFEntry that should be modified
+        :return: None
+        """
         if float(NFEntry_1.bidirectional_last_seen_ms) == float(0) or float(NFEntry_2.bidirectional_last_seen_ms) == float(-1):
             NFEntry_1.bidirectional_last_seen_ms = NFEntry_2.bidirectional_last_seen_ms
         elif float(NFEntry_1.bidirectional_last_seen_ms) < float(NFEntry_2.bidirectional_last_seen_ms):
@@ -159,19 +155,15 @@ class Buffer:
             NFEntry_1.dst2src_last_seen_ms = NFEntry_2.dst2src_last_seen_ms
         elif float(NFEntry_1.dst2src_last_seen_ms) < float(NFEntry_2.dst2src_last_seen_ms):
             NFEntry_1.dst2src_last_seen_ms = NFEntry_2.dst2src_last_seen_ms
-        '''
-        for param in self.mal:
-            if float(getattr(NFEntry_1,param)) == (float(0) or float(-1)):
-                setattr(NFEntry_1,param,getattr(NFEntry_2,param))
-            elif float(getattr(NFEntry_1,param)) < float(getattr(NFEntry_2,param)):
-                setattr(NFEntry_1,param,getattr(NFEntry_2,param))
-            else:
-                continue
-        '''
 
-    def accumulate(self,NFEntry_1,NFEntry_2):
-        # FONTOS: NFEntry_1 mindig ami mar szerepel a tablaban
-        # es NFEntry_2 lesz az amit be akarunk tenni!
+    def accumulate(self, NFEntry_1, NFEntry_2) -> None:
+        """
+        This function accumulates parameters of the given NFEntry_2 to the NFEntry_1.
+
+        :param NFEntry_1: NFEntry that should be accumulated
+        :param NFEntry_2: NFEntry that should be accumulated
+        :return: None
+        """
         NFEntry_1.bidirectional_packets = float(NFEntry_1.bidirectional_packets) + float(NFEntry_2.bidirectional_packets)
         NFEntry_1.bidirectional_bytes = float(NFEntry_1.bidirectional_bytes) + float(NFEntry_2.bidirectional_bytes)
         NFEntry_1.bidirectional_duration_ms = float(NFEntry_1.bidirectional_duration_ms) + float(NFEntry_2.bidirectional_duration_ms)
@@ -181,92 +173,110 @@ class Buffer:
         NFEntry_1.dst2src_duration_ms = float(NFEntry_1.dst2src_duration_ms) + float(NFEntry_2.dst2src_duration_ms)
         NFEntry_1.src2dst_bytes = float(NFEntry_1.src2dst_bytes) + float(NFEntry_2.src2dst_bytes)
         NFEntry_1.dst2src_bytes = float(NFEntry_1.dst2src_bytes) + float(NFEntry_2.dst2src_bytes)
-        '''
-        for param in self.a:
-            setattr(NFEntry_1,param,float(getattr(NFEntry_1,param))+float(getattr(NFEntry_2,param)))
-        '''
 
-    def append(self, NFEntry):
+    def append(self, NFEntry) -> None:
+        """
+        This function appends the given NFEntry to the buffer. Function checks the field that must be dropped
+        in order to move element to buffer. After dropping the parameters the function checks if the element can be
+        aggregated or not. If it can be aggregated then the function aggregates the element with the existing element
+        in the buffer. If it cannot be aggregated then the function adds the element to the buffer.
+
+        :param NFEntry: Element that should be added to the buffer
+        :return:
+        """
         if self.params is None:
             self.bufferedArray.append(NFEntry)
             return
 
-        # ki kell torolni ami nem kell a parameter lista alapjan
+        # Deleting param that is not needed in the buffer
         for element in self.params:
-            # meg kell nezni hogy van e neki egyaltalan ilyen mezo erteke
+            delattr(NFEntry, element)
 
-            # if-else itt is kilett veve mert nem jol mukodott ha 0 volt az ertek!
-            #if getattr(NFEntry,element):
-            delattr(NFEntry,element)
-            #else:
-            #    continue
-
-        # a kitorles utan meg kell nezni hogy van-e ilyen rekord es ha van aggregalni kell
-        # amugy meg cska bekerul a memoriaba
+        # Checking if element can be aggregated or not
+        # if not it will be added to the buffer
         if Buffer.containsEntry(self, NFEntry):
-            #[1]-ben van benne az NFEntry_1!
-            # vegig kell menni a minimumon maxon es az osszeadason
             NFEntry_1 = Buffer.containsEntry(self, NFEntry)
-            self.takeMinimum(NFEntry_1=NFEntry_1,NFEntry_2=NFEntry)
-            self.takeMaximum(NFEntry_1=NFEntry_1,NFEntry_2=NFEntry)
-            self.accumulate(NFEntry_1=NFEntry_1,NFEntry_2=NFEntry)
-            self.concatElements(NFEntry_1=NFEntry_1,NFEntry_2=NFEntry)
+            self.takeMinimum(NFEntry_1=NFEntry_1, NFEntry_2=NFEntry)
+            self.takeMaximum(NFEntry_1=NFEntry_1, NFEntry_2=NFEntry)
+            self.accumulate(NFEntry_1=NFEntry_1, NFEntry_2=NFEntry)
+            self.concatElements(NFEntry_1=NFEntry_1, NFEntry_2=NFEntry)
         else:
             self.bufferedArray.append(NFEntry)
 
-            # annyi kiegeszites kell ide ha advanced ip matching bent van hogy ilyenkor
-            # a roothoz hozza kell adni az adott stringet
-            # src ip cim hozzadas
             if self.advancedIPComparison == "True":
-                if self.id not in [3,4,5]:
-                    #advanced_matching.add(root=self.root_src,word=advanced_matching.pre_process_ip_addr(getattr(NFEntry,"src_ip")))
+                if self.id not in [3, 4, 5]:
                     advanced_matching.add(root=self.root_src, word=advanced_matching.pre_process_ip_addr(NFEntry.src_ip))
-                if self.id not in [4,5]:
-                    #advanced_matching.add(root=self.root_dst,word=advanced_matching.pre_process_ip_addr(getattr(NFEntry,"dst_ip")))
+                if self.id not in [4, 5]:
                     advanced_matching.add(root=self.root_dst,word=advanced_matching.pre_process_ip_addr(NFEntry.dst_ip))
 
+    def delete(self, NFEntry) -> None:
+        """
+        This function deletes the given NFEntry from the buffer.
 
-    def delete(self, NFEntry):
-        # amikor athelyezunk elemet az egyikbol a masikbe
-        # akkor az eredetibol torolni kell miutan megtortent az ujba az append
-
-        # abban az esetben ha be van kapcsolva es egy nfeentryt removolunk akkor elotte ki kell torolni a
-        # fakbol az adott ertekeket
+        :param NFEntry: NFEntry that should be deleted from the buffer
+        :return: None
+        """
         if self.advancedIPComparison == "True":
-            if self.id not in [3,4,5]:
-                advanced_matching.delete(root=self.root_src,word=advanced_matching.pre_process_ip_addr(NFEntry.src_ip))
-                #advanced_matching.delete(root=self.root_src,word=advanced_matching.pre_process_ip_addr(getattr(NFEntry,"src_ip")))
-            if self.id not in [4,5]:
-                advanced_matching.delete(root=self.root_dst,word=advanced_matching.pre_process_ip_addr(NFEntry.dst_ip))
-                #advanced_matching.delete(root=self.root_dst,word=advanced_matching.pre_process_ip_addr(getattr(NFEntry,"dst_ip")))
+            if self.id not in [3, 4, 5]:
+                advanced_matching.delete(root=self.root_src, word=advanced_matching.pre_process_ip_addr(NFEntry.src_ip))
+            if self.id not in [4, 5]:
+                advanced_matching.delete(root=self.root_dst, word=advanced_matching.pre_process_ip_addr(NFEntry.dst_ip))
 
-        #if Buffer.containsEntry(self, NFEntry):
         self.bufferedArray.remove(NFEntry)
-        #else:
-        #    pass
 
-    def getInformation(self):
+    def getInformation(self) -> None:
+        """
+        Function to print the dropped values of the buffer.
+
+        :return: None
+        """
         outParams = ""
         for p in self.params:
             outParams += p + ","
         print(f'Buffer {self.id} following values dropped: {outParams}')
 
-    def payload(self):
+    def payload(self) -> int:
+        """
+        This function returns the payload size of the last element in the buffer. (bytes)
+
+        :return: payload size of the last element in the buffer
+        """
         return self.lastElement().bidirectional_bytes
         #return asizeof.asizeof(self.bufferedArray)
 
-    def payloadInformation(self):
+    def payloadInformation(self) -> None:
+        """
+        This function prints the payload size of the buffer.
+
+        :return: None
+        """
         print(f'Payload size in buffer {self.id} : {asizeof(self.bufferedArray)} bytes.')
 
-    def getFlows(self):
+    def getFlows(self) -> None:
+        """
+        This function prints the buffered array of the buffer.
+
+        :return: None
+        """
         print(f'Buffer {self.id}')
         for flow in self.bufferedArray:
             print(flow)
 
-    def getFlowData(self):
+    def getFlowData(self) -> list:
+        """
+        This function returns the buffered array of the buffer.
+
+        :return: buffered array of the buffer
+        """
         return self.bufferedArray
 
-    def moveable(self):
+    def moveable(self) -> bool:
+        """
+        This function checks if the buffer is moveable or not. If the buffer is moveable then it can be moved to
+        another buffer.
+
+        :return: True if the buffer is moveable, False otherwise
+        """
         if len(self.bufferedArray) >= 2:
             return True
         return False
