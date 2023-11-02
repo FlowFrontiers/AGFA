@@ -61,18 +61,27 @@ To start the Network Buffering Tool v2.0, you can use the command line interface
 To start the tool using the command line parameters, run the following command:
 
 ```
-python3 main.py \
+python main.py \
+  -sc enp0s3 \
   -t 100000 \
   -s 10 \
   -b protocol src_port dst_port src_ip dst_ip \
   -mi bidirectional_first_seen_ms src2dst_first_seen_ms dst2src_first_seen_ms \
   -ma bidirectional_last_seen_ms src2dst_last_seen_ms dst2src_last_seen_ms \
-  -a bidirectional_packets bidirectional_raw_bytes bidirectional_ip_bytes bidirectional_duration_ms src2dst_packets src2dst_raw_bytes src2dst_ip_bytes src2dst_duration_ms dst2src_packets dst2src_raw_bytes dst2src_ip_bytes dst2src_duration_ms \
-  -d id version vlan_id src_ip_type dst_ip_type expiration_id \
+  -a bidirectional_packets bidirectional_bytes bidirectional_duration_ms src2dst_packets src2dst_duration_ms dst2src_packets dst2src_duration_ms src2dst_bytes dst2src_bytes \
+  -d ip_version vlan_id src_ip_is_private dst_ip_is_private expiration_id application_name client_fingerprint server_fingerprint requested_server_name http_content_type application_category_name http_user_agent application_is_guessed \
+  -c id \
   -dt False \
   -pc False \
-  -aipc False \
-  -act 98
+  -aipc True \
+  -mc True \
+  -act 60 \
+  -e 10000 \
+  -al 100 \
+  -f 100 \
+  -w 1200 \
+  -hi 1800 \
+  -rms 10000
 ```
 
 If you want to use the default config file, set the **-i** or **--initialize** argument to True. If you do not have the default config file, you will need to use the console configuration.

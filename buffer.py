@@ -100,7 +100,7 @@ class Buffer:
         else:
             return self.smallest_bidirectional_bytes()
 
-    def concatElements(self,NFEntry_1, NFEntry_2) -> None:
+    def concatElements(self, NFEntry_1, NFEntry_2) -> None:
         """
         This function concatenates the id of the given NFEntries and sets the concatenated id to the first NFEntry.
 
@@ -110,7 +110,7 @@ class Buffer:
         """
         NFEntry_1.id = f'{NFEntry_1.id}:{NFEntry_2.id}'
 
-    def takeMinimum(self,NFEntry_1,NFEntry_2) -> None:
+    def takeMinimum(self, NFEntry_1, NFEntry_2) -> None:
         """
         This function takes the minimum value of the given parameters of the given NFEntries and sets the minimum
 

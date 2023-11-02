@@ -554,7 +554,7 @@ if __name__ == "__main__":
     parser.add_argument('-w', '--width', help="Set exporter graphs width (pixel). {Integer}", dest='exportedGraphWidth')
     parser.add_argument('-hi', '--height', help="Set exporter graphs height (pixel). {Integer}",
                         dest='exportedGrapHeight')
-    parser.add_argument('-rms', '--relativememorysize', help='Set the relative memory size (packet count). {Integer}',
+    parser.add_argument('-rm7s', '--relativememorysize', help='Set the relative memory size (packet count). {Integer}',
                         dest='relativeMemorySize')
 
     args = parser.parse_args()
