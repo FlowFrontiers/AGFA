@@ -1,10 +1,9 @@
-## Comparative Analysis of Flow Aggregation Strategies: Original Method versus Our Enhanced Method
+# Comparative Analysis of Flow Aggregation Strategies: Original Method versus Our Enhanced Method
 
 In the realm of flow measurement, the objective is often to maximize the granularity and accuracy of flow statistics while adapting to resource constraints. The discussion at hand presents a comparative analysis between an original flow aggregation methodology and a newly proposed method, aiming to highlight the nuanced differences and potential advantages brought forth by the latter.
 
----
 
-### Original Method: Direct Flow Aggregation
+## Original Method: Direct Flow Aggregation
 
 The original method [[1]](#Irino2008) hinges on a _Gradual Flow Key Reduction_ process that operates within a designated part of the main buffer, specifically earmarked for flows targeted for aggregation. This method unfolds iteratively, with each iteration employing a reduced set of flow keys for aggregation, based on a predetermined Flow Key Precedence. The iterations persevere until either the total count of flow records in the main buffer descends below a stipulated limit or there ceases to be more flow keys to pare down from, upon which the aggregated flows are relocated to their associated buffers. 
 
@@ -14,9 +13,7 @@ However, under extreme circumstances engendered by heavy traffic dynamics and a 
 
 Moreover, a notable shortcoming of this method is its lack of handling for buffers that aggregate flows using a higher number of flow key elements. Assuming an instance where all flows migrate solely to `Buffer B1` due to the method's intrinsic nature, setting aside the effects of flow expiration and export in this case, a low-capacity scenario could see these flows occupying the entire space, which is not adequately managed within this method.
 
----
-
-### Enhanced Method: Stepwise Flow Aggregation
+## Enhanced Method: Stepwise Flow Aggregation
 
 The proposed method elucidates a structured, stepwise flow aggregation process, employing a multi-buffer structure much like the original method. Each buffer (`B0` to `B4`) has a dedicated purpose for a specific level of flow key aggregation. For instance, `Buffer B1` harbors flows aggregated over four elements, `Buffer B2` over three, and so forth, representing a progressive decrease in granularity from `B0` to `B4`. However, a distinctive feature of the proposed method is a more structured and stepwise flow aggregation that allows for a more controlled and less abrupt data reduction process compared to the Original Method.
 
@@ -28,12 +25,10 @@ A salient feature of the proposed method is the provision for moving overflowing
 
 This orchestrated approach of the proposed method, from the stepwise reduction of flow key elements to the adaptive threshold mechanism, not only mitigates the risk of abrupt data reduction but also ensures a more resource-aware, organized, and potentially more information-rich flow aggregation process compared to the original method.
 
----
-
-### Conclusion
+## Conclusion
 
 The proposed method, with its stepwise flow aggregation and multi-buffer structure, potentially offers a more organized and resource-adaptive approach to flow aggregation. Unlike the original method, where flows are subject to abrupt aggregation rounds directly from the main buffer, the proposed method ensures a gradual reduction in flow key elements, potentially preserving more information and providing a structured pathway for flow aggregation amidst varying resource constraints.
 
-### References
+## References
 
  [1] <span id="Irino2008"></span>Hitoshi Irino, Masaru Katayama, and Shinichiro Chaki, "Study of adaptive aggregation on IPFIX," in the *Proceedings of the 2008 7th Asia-Pacific Symposium on Information and Telecommunication Technologies*, Bandos Island, Maldives, 2008, pp. 86-91. doi: `10.1109/APSITT.2008.4653545`.

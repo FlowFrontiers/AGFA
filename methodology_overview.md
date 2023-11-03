@@ -1,13 +1,12 @@
-## Adaptive Multi-Buffer Flow Measurement Strategy
+# Adaptive Multi-Buffer Flow Measurement Strategy
 
-### Objective
+## Objective
 Maximize the granularity and accuracy of flow statistics within resource constraints, while ensuring an adaptive response to changes in resource usage, ensuring efficient system operation. 
 
 As resources are abundant, more detailed flow data is retained, and conversely, as resources diminish, the detail level of flow data is adaptively reduced to fit within the resource constraints.
 
----
 
-### Gradual Flow Key Reduction
+## Gradual Flow Key Reduction
 
 The cornerstone of this strategy resides in the _Gradual Flow Key Reduction_ [[1]](#Irino2008) mechanism, which orchestrates a controlled, progressive aggregation of flow data by judiciously reducing the flow key elements as data navigates through a sequence of buffers.
 
@@ -19,9 +18,7 @@ The cornerstone of this strategy resides in the _Gradual Flow Key Reduction_ [[1
 
 - **Enhanced Aggregation Pathway**: Diverging from the original method where **flows leap directly from the main buffer to a designated buffer predicated on the current reduction round**, our methodology facilitates a more structured, and stepwise aggregation process. This gradual movement potentially fosters a more judicious information preservation, enhancing the trade-off between data granularity and resource constraints.
 
----
-
-### Buffers
+## Buffers
 
 The methodology is grounded on a hierarchical buffer system, where each buffer signifies a particular level of flow key aggregation, hence orchestrating a structured data reduction trajectory.
 
@@ -39,9 +36,7 @@ For the elucidation of the buffer hierarchy, an assumption is made employing a c
 
 Each buffer in this hierarchical structure is meticulously designed to balance the trade-off between the granularity of information and the availability of resources, orchestrating a progressive and adaptable data reduction pathway.
 
----
-
-### Flow Handling
+## Flow Handling
 
 - **Initialization**:
     - New flows are introduced into the Main Flow Cache (`B0`).
@@ -61,10 +56,9 @@ Each buffer in this hierarchical structure is meticulously designed to balance t
     - **Flow End:** Obtained from the latest timestamp among the aggregated flows.
     - **TCP Flags:** Omitted as they are flow-specific and would lose their informational significance upon aggregation.
 
----
-
+  
 This structured approach ensures an adaptive, resource-efficient flow measurement strategy, which is capable of providing valuable insights even under varying resource availabilities.
 
-### References
+## References
 
  [1] <span id="Irino2008"></span>Hitoshi Irino, Masaru Katayama, and Shinichiro Chaki, "Study of adaptive aggregation on IPFIX," in the *Proceedings of the 2008 7th Asia-Pacific Symposium on Information and Telecommunication Technologies*, Bandos Island, Maldives, 2008, pp. 86-91. doi: `10.1109/APSITT.2008.4653545`.
